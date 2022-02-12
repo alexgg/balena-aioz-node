@@ -1,0 +1,26 @@
+version: '2.1'
+volumes:
+    xserver-volume:
+    aoiz-volume:
+services:
+  xserver:
+    image: balenablocks/xserver
+    restart: always
+    privileged: true
+    volumes:
+      - 'xserver-volume:/tmp/.X11-unix'
+  balena-electron:
+    build: ./balena-electron
+    restart: always
+    network_mode: host
+    ports:
+      - 8080:8080
+    volumes:
+      - 'xserver-volume:/tmp/.X11-unix'
+      # Persist the configuration data
+      - 'aoiz-volume:/root/.config/aioz-worker-node'
+    environment:
+      - DISPLAY=:0
+    privileged: true
+    labels:
+      io.balena.features.sysfs: '1'

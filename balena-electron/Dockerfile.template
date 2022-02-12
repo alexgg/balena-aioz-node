@@ -1,0 +1,20 @@
+FROM balenablocks/amd64-balena-electron-env:v1.2.11
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y locales wget unzip x11-xserver-utils && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
+    locale-gen en_US.utf8 \
+    update-locale LANG=en_US.UTF-8
+
+ENV LANG en_US.UTF-8
+
+RUN cd /tmp; wget --quiet https://sgp1.digitaloceanspaces.com/aioznetwork/AIOZNode-0.8.1.zip; unzip AIOZNode-0.8.1.zip; ./'AIOZ Node-0.8.1.AppImage' --appimage-extract; mv squashfs-root/* /usr/src/app/
+WORKDIR /usr/src/app
+COPY start.sh /usr/src/app/
+
+ENV NODE_ENV=production \
+    UDEV=1 \
+    DISPLAY=:0
+
+CMD [ "/bin/bash", "/usr/src/app/start.sh"]
